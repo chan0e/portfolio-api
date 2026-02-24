@@ -11,12 +11,25 @@
 
 ## 기본 정보
 - 기본 경로: `/api/v1`
-- 콘텐츠 타입: `application/json; charset=utf-8`
+- 성공 응답 콘텐츠 타입: `application/json; charset=utf-8`
+- 에러 응답 콘텐츠 타입: `application/problem+json; charset=utf-8`
 - 시간 포맷: ISO-8601 UTC (예: `2026-02-24T04:21:22Z`)
 
 ## 엔드포인트
 ### `GET /api/v1/portfolio`
 - 프론트엔드 렌더링에 필요한 전체 포트폴리오 데이터를 단일 응답으로 반환합니다.
+
+## 권장 헤더
+### 요청 헤더
+- `Accept: application/json`
+- `If-None-Match: "<etag>"` (선택, 조건부 조회)
+- `X-Request-Id: "<uuid>"` (선택, 추적용)
+
+### 응답 헤더
+- `ETag: "<etag>"` (캐시 검증)
+- `Cache-Control: public, max-age=60, stale-while-revalidate=300`
+- `Vary: Accept, Accept-Encoding`
+- `X-Request-Id: "<uuid>"` (서버 생성 또는 요청값 전달)
 
 ## 성공 응답
 ### HTTP 200
@@ -120,28 +133,50 @@
 - `navItems`, `skills`, `projects`, `experience`는 저장 순서를 유지합니다.
 - 추후 `order` 필드가 도입되면 `order` 오름차순을 우선합니다.
 
-## 에러 응답
-공통 에러 페이로드:
+## 비-200 응답 명세
+### 공통 에러 포맷 (Problem Details)
+에러 응답은 `application/problem+json`을 사용합니다.
 
 ```json
 {
-  "timestamp": "2026-02-24T04:21:22Z",
+  "type": "https://api.devchan.com/problems/portfolio-bad-request",
+  "title": "Bad Request",
   "status": 400,
-  "error": "Bad Request",
+  "detail": "Validation failed for query parameter",
+  "instance": "/api/v1/portfolio",
   "code": "PORTFOLIO_BAD_REQUEST",
-  "message": "Validation failed",
-  "path": "/api/v1/portfolio"
+  "traceId": "9f3c9d52d2e3476ca8e8d10a7b8ed901",
+  "errors": [
+    {
+      "field": "Accept",
+      "reason": "Unsupported media type requested"
+    }
+  ]
 }
 ```
 
-### HTTP 400
-- 요청 파라미터 또는 데이터 검증 실패
+### 상태 코드 정책
+| HTTP | 코드명 | 사용 조건 | 응답 본문 |
+|---|---|---|---|
+| 304 | Not Modified | `If-None-Match` 값이 현재 `ETag`와 동일한 경우 | 없음 |
+| 400 | Bad Request | 요청 파라미터/헤더 유효성 검증 실패 | Problem Details |
+| 401 | Unauthorized | 인증 필요 모드에서 토큰 누락 또는 무효 | Problem Details |
+| 403 | Forbidden | 인증은 되었으나 접근 권한 부족 | Problem Details |
+| 404 | Not Found | 포트폴리오 데이터 미존재 또는 비공개 상태 | Problem Details |
+| 406 | Not Acceptable | 지원하지 않는 `Accept` 헤더 요청 | Problem Details |
+| 422 | Unprocessable Content | 저장 데이터가 API 계약을 충족하지 못함 | Problem Details |
+| 429 | Too Many Requests | 레이트 리밋 초과 | Problem Details + `Retry-After` |
+| 500 | Internal Server Error | 애플리케이션 내부 예외 | Problem Details |
+| 502 | Bad Gateway | 업스트림 연동 실패(프록시/게이트웨이 경유 시) | Problem Details |
+| 503 | Service Unavailable | 배포/점검/일시적 장애 | Problem Details + `Retry-After` |
+| 504 | Gateway Timeout | 업스트림 응답 타임아웃(게이트웨이 경유 시) | Problem Details |
 
-### HTTP 404
-- 포트폴리오 데이터를 찾지 못한 경우
-
-### HTTP 500
-- 조회/매핑/직렬화 중 내부 오류 발생
+## 트렌드 반영 점검 항목
+- 표준 에러 스펙(`application/problem+json`) 사용
+- `X-Request-Id` 기반 추적성 확보
+- `ETag` + `If-None-Match` 조건부 조회로 캐시 효율화
+- `429` + `Retry-After` 기반 트래픽 제어
+- 기계 판독용 에러 코드(`code`)와 인적 판독용 메시지(`detail`) 분리
 
 ## 검증 메모
 - URL 필드(`photoSrc`, `links.github`, `links.demo`, `github`, `linkedin`, `blog`)는 절대 URL을 권장합니다.
