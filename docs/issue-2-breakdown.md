@@ -1,55 +1,55 @@
-# Issue #2 Breakdown
+# 이슈 #2 작업 분해
 
-This document breaks down issue `#2` into implementation-sized tasks.
+이 문서는 이슈 `#2`를 구현 가능한 단위 작업으로 분해한 내용입니다.
 
-## Scope
-- Build backend foundations for portfolio data delivery.
-- Provide a single response endpoint: `GET /api/v1/portfolio`.
-- Define schema, migration, and error handling baseline.
+## 범위
+- 포트폴리오 데이터 제공을 위한 백엔드 기반을 구축합니다.
+- 단일 응답 엔드포인트 `GET /api/v1/portfolio`를 제공합니다.
+- 스키마, 마이그레이션, 예외 처리의 기준선을 정의합니다.
 
-## Tasks
-1. Define API contract
-- Write endpoint request/response contract.
-- Define validation and standard error format.
-- Freeze v1 fields before implementation.
+## 작업 항목
+1. API 계약 정의
+- 엔드포인트 요청/응답 계약을 문서화합니다.
+- 검증 규칙과 표준 에러 포맷을 정의합니다.
+- 구현 전에 v1 필드를 확정합니다.
 
-2. Design database schema
-- Design tables: `profile`, `skills`, `projects`, `experience`, `contact`.
-- Define foreign keys, indexes, and display order columns.
-- Produce ERD and SQL-level constraints.
+2. 데이터베이스 스키마 설계
+- `profile`, `skills`, `projects`, `experience`, `contact` 테이블을 설계합니다.
+- 외래키, 인덱스, 노출 순서 컬럼을 정의합니다.
+- ERD와 SQL 제약조건을 확정합니다.
 
-3. Configure migration tool
-- Select Flyway or Liquibase.
-- Add initial migration scripts.
-- Verify clean bootstrap on empty PostgreSQL.
+3. 마이그레이션 도구 구성
+- Flyway 또는 Liquibase를 선택합니다.
+- 초기 마이그레이션 스크립트를 추가합니다.
+- 빈 PostgreSQL에서 클린 부트스트랩을 검증합니다.
 
-4. Build application layers
-- Create controller/service/repository packages.
-- Add entity and DTO classes.
-- Add mapper strategy between entity and API model.
+4. 애플리케이션 계층 구성
+- controller/service/repository 패키지 구조를 생성합니다.
+- 엔티티와 DTO 클래스를 추가합니다.
+- 엔티티와 API 모델 간 매핑 전략을 정의합니다.
 
-5. Implement `GET /api/v1/portfolio`
-- Query all sections needed by frontend.
-- Aggregate into one response payload.
-- Guarantee deterministic list ordering.
+5. `GET /api/v1/portfolio` 구현
+- 프론트엔드가 필요한 모든 섹션을 조회합니다.
+- 하나의 응답 페이로드로 집계합니다.
+- 리스트 정렬이 항상 동일하게 보장되도록 구현합니다.
 
-6. Add exception handling standard
-- Implement global exception handler.
-- Map domain/validation failures to `400/404/500`.
-- Return a common error payload format.
+6. 예외 처리 표준 추가
+- 전역 예외 처리기를 구현합니다.
+- 도메인/검증 실패를 `400/404/500`으로 매핑합니다.
+- 공통 에러 응답 포맷을 반환합니다.
 
-7. Add tests
-- Unit tests for service and mapper logic.
-- Integration test for endpoint and DB access.
-- Smoke test for app startup and basic retrieval.
+7. 테스트 추가
+- 서비스/매퍼 로직 단위 테스트를 작성합니다.
+- 엔드포인트 + DB 접근 통합 테스트를 작성합니다.
+- 애플리케이션 기동 및 기본 조회 스모크 테스트를 작성합니다.
 
-8. Add runbook basics
-- Document local run instructions.
-- Document required env vars and DB setup.
-- Add sample response and troubleshooting notes.
+8. 실행 가이드 기초 정리
+- 로컬 실행 방법을 문서화합니다.
+- 필수 환경 변수와 DB 설정을 문서화합니다.
+- 샘플 응답과 트러블슈팅 메모를 추가합니다.
 
-## Definition of Done
-- API contract is accepted and unchanged in implementation.
-- Local PostgreSQL + application run is verified.
-- `GET /api/v1/portfolio` returns the agreed schema.
-- Core tests pass for normal and error cases.
+## 완료 조건
+- API 계약이 합의되고 구현에서 변경 없이 준수됩니다.
+- 로컬 PostgreSQL + 애플리케이션 실행이 검증됩니다.
+- `GET /api/v1/portfolio`가 합의된 스키마를 반환합니다.
+- 정상/오류 핵심 시나리오 테스트가 통과합니다.

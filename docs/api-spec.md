@@ -1,16 +1,16 @@
-# Portfolio API Specification (v1)
+# 포트폴리오 API 명세서 (v1)
 
-## Base
-- Base path: `/api/v1`
-- Content type: `application/json; charset=utf-8`
-- Time format: ISO-8601 UTC, example: `2026-02-24T04:21:22Z`
+## 기본 정보
+- 기본 경로: `/api/v1`
+- 콘텐츠 타입: `application/json; charset=utf-8`
+- 시간 포맷: ISO-8601 UTC, 예시: `2026-02-24T04:21:22Z`
 
-## Endpoint
+## 엔드포인트
 ### `GET /api/v1/portfolio`
 
-Returns a full portfolio payload for frontend rendering.
+프론트엔드 렌더링에 필요한 전체 포트폴리오 데이터를 반환합니다.
 
-## Success Response
+## 성공 응답
 ### HTTP 200
 
 ```json
@@ -76,17 +76,17 @@ Returns a full portfolio payload for frontend rendering.
 }
 ```
 
-## Ordering Rules
-- `skills`, `projects`, `experience` are sorted by `displayOrder` ascending.
-- If `displayOrder` is the same, sort by `id` ascending.
+## 정렬 규칙
+- `skills`, `projects`, `experience`는 `displayOrder` 오름차순으로 정렬합니다.
+- `displayOrder`가 같으면 `id` 오름차순으로 정렬합니다.
 
-## Nullability Rules
-- Empty list sections must return `[]`, not `null`.
-- Optional string fields may return `null`.
-- Top-level objects must always exist (`profile`, `contact`, `meta`).
+## Null 처리 규칙
+- 비어 있는 리스트 섹션은 `null`이 아닌 `[]`를 반환해야 합니다.
+- 선택 문자열 필드는 필요 시 `null`을 반환할 수 있습니다.
+- 최상위 객체(`profile`, `contact`, `meta`)는 항상 존재해야 합니다.
 
-## Error Response
-Common error payload:
+## 에러 응답
+공통 에러 페이로드:
 
 ```json
 {
@@ -100,19 +100,19 @@ Common error payload:
 ```
 
 ### HTTP 400
-- Invalid request parameters.
+- 요청 파라미터가 유효하지 않은 경우
 
 ### HTTP 404
-- Portfolio data not found.
+- 포트폴리오 데이터를 찾지 못한 경우
 
 ### HTTP 500
-- Internal server error during retrieval or mapping.
+- 조회 또는 매핑 중 내부 서버 오류가 발생한 경우
 
-## Validation Notes
-- `email` should be a valid email format when present.
-- `repoUrl`, `demoUrl`, and social URLs should be absolute URLs when present.
-- `displayOrder` should be a non-negative integer.
+## 검증 메모
+- `email`은 값이 있을 경우 유효한 이메일 형식이어야 합니다.
+- `repoUrl`, `demoUrl`, 소셜 URL은 값이 있을 경우 절대 URL이어야 합니다.
+- `displayOrder`는 0 이상의 정수여야 합니다.
 
-## Versioning Notes
-- Breaking changes require a new path version (example: `/api/v2`).
-- Additive fields can be introduced in `v1` if backward compatible.
+## 버저닝 메모
+- 호환성이 깨지는 변경은 새 경로 버전(예: `/api/v2`)을 사용합니다.
+- 하위 호환 가능한 필드 추가는 `v1`에서 허용할 수 있습니다.
