@@ -145,6 +145,7 @@
 - 배포 전략:
   - 현재 개발 단계는 JPA 자동 스키마 업데이트를 사용하되, 운영 전환 시 마이그레이션 도구로 명시적 DDL 관리 전환
   - 제약조건 이름 고정으로 롤백/장애 분석 추적성 확보
+  - `updated_at` 갱신은 DB 트리거 대신 애플리케이션 계층에서 일관되게 처리
 - 검증 전략: API DTO-DB 매핑 통합 테스트에서 `null/빈배열/중복순서/고아레코드`를 케이스화한다.
 
 ## ERD
@@ -309,6 +310,7 @@ int display_order
   - 기본값 반영: `portfolio.source`, `*_key_version`, `experience.is_current`에 DDL 기본값 반영
   - 경력 중복 방지 방식 변경: `experience`는 NULL 안전성을 위해 표현식 유니크 인덱스 `uk_experience_portfolio_identity` 사용
   - 프로젝트 제약 정리: `project`는 현재 `title` 유니크 없이 `display_order`만 유니크로 강제
+  - 갱신 정책 변경: `updated_at`은 DB 트리거를 제거하고 애플리케이션 계층에서 관리
 
 ## 테이블 설계 (DDL 기준)
 ### 1) `portfolio`
@@ -445,10 +447,10 @@ int display_order
   - `CHECK (btrim(blog_url) <> '')`
   - `CHECK (btrim(message) <> '')`
 
-### 공통 `updated_at` 트리거
-- 함수: `set_updated_at()`
-- 트리거 적용 테이블
-  - `portfolio`, `profile`, `nav_item`, `skill_group`, `project`, `experience`, `contact`
+### 공통 `updated_at` 관리 정책
+- DB 트리거는 두지 않는다.
+- `updated_at`은 애플리케이션 계층에서 갱신한다.
+- 이유: DB 스키마는 제약/무결성에 집중하고, 갱신 시점 제어는 서비스 로직에서 일관되게 처리한다.
 
 ## 개인정보/암호화 적용
 | API 필드 | 개인정보 여부 | DB 저장 방식 | 비고 |
@@ -519,7 +521,7 @@ int display_order
   - `project`는 `title` 유니크 없이 `display_order` 유니크만 유지하도록 문서와 동기화
   - `experience` 기간 모델 분리(`start_date/end_date/is_current`) 및 일관성 체크 반영
   - `experience`의 NULL 안전 중복 방지를 위해 표현식 유니크 인덱스 반영
-  - `updated_at` 자동 갱신 트리거 반영
+  - `updated_at`은 DB 트리거 없이 애플리케이션 계층에서 관리하도록 정책 변경
 
 ## 오픈 포인트 (확인 필요)
 - `portfolio`를 단일 row(`default`)로 고정할지, 다중 포트폴리오 지원할지
